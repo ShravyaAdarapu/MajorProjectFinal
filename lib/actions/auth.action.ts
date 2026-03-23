@@ -70,17 +70,23 @@ export async function signUp(params: SignUpParams) {
 export async function signIn(params: SignInParams) {
   const { email, idToken } = params;
 
+  console.log("[AUTH] signIn called for:", email);
+
   try {
     const userRecord = await auth.getUserByEmail(email);
-    if (!userRecord)
+    if (!userRecord) {
+      console.log("[AUTH] No user record found for:", email);
       return {
         success: false,
         message: "User does not exist. Create an account.",
       };
+    }
 
+    console.log("[AUTH] User found, setting session cookie...");
     await setSessionCookie(idToken);
+    console.log("[AUTH] Session cookie set successfully");
   } catch (error: any) {
-    console.log("");
+    console.log("[AUTH] signIn error:", error);
 
     return {
       success: false,
@@ -101,24 +107,34 @@ export async function getCurrentUser(): Promise<User | null> {
   const cookieStore = await cookies();
 
   const sessionCookie = cookieStore.get("session")?.value;
-  if (!sessionCookie) return null;
+  if (!sessionCookie) {
+    console.log("[AUTH] No session cookie found");
+    return null;
+  }
+
+  console.log("[AUTH] Session cookie exists, verifying...");
 
   try {
     const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
+    console.log("[AUTH] Session verified, uid:", decodedClaims.uid);
 
     // get user info from db
     const userRecord = await db
       .collection("users")
       .doc(decodedClaims.uid)
       .get();
-    if (!userRecord.exists) return null;
+    if (!userRecord.exists) {
+      console.log("[AUTH] User not found in Firestore for uid:", decodedClaims.uid);
+      return null;
+    }
 
+    console.log("[AUTH] User found:", userRecord.id);
     return {
       ...userRecord.data(),
       id: userRecord.id,
     } as User;
   } catch (error) {
-    console.log(error);
+    console.log("[AUTH] Error in getCurrentUser:", error);
 
     // Invalid or expired session
     return null;
