@@ -3,6 +3,7 @@ import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import InterviewCard from "@/components/InterviewCard";
+import { roleBasedInterviews } from "@/constants";
 
 import { getCurrentUser } from "@/lib/actions/auth.action";
 import {
@@ -19,7 +20,16 @@ async function Home() {
   ]);
 
   const hasPastInterviews = userInterviews?.length! > 0;
-  const hasUpcomingInterviews = allInterview?.length! > 0;
+  const mergedUpcomingInterviews = (() => {
+    const liveInterviews = allInterview ?? [];
+    const usedRoles = new Set(liveInterviews.map((interview) => interview.role));
+    const seedInterviews = roleBasedInterviews.filter(
+      (interview) => !usedRoles.has(interview.role)
+    );
+
+    return [...liveInterviews, ...seedInterviews].slice(0, 50);
+  })();
+  const hasUpcomingInterviews = mergedUpcomingInterviews.length > 0;
 
   return (
     <>
@@ -71,7 +81,7 @@ async function Home() {
 
         <div className="interviews-section">
           {hasUpcomingInterviews ? (
-            allInterview?.map((interview) => (
+            mergedUpcomingInterviews.map((interview) => (
               <InterviewCard
                 key={interview.id}
                 userId={user?.id}
