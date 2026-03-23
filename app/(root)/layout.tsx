@@ -25,11 +25,31 @@ const Layout = async ({ children }: { children: ReactNode }) => {
           <h2 className="text-primary-100">PrepWise</h2>
         </Link>
 
-        <form action={handleSignOut}>
-          <button type="submit" className="btn-secondary">
-            Logout
-          </button>
-        </form>
+        <details className="relative">
+          <summary className="list-none cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200">
+            <div className="size-10 rounded-full bg-pink-300 text-dark-100 font-semibold flex items-center justify-center">
+              S
+            </div>
+          </summary>
+
+          <div className="absolute right-0 mt-3 w-44 rounded-xl border border-light-800 dark-gradient p-2 z-20 shadow-lg">
+            <Link
+              href="/dashboard"
+              className="block w-full rounded-lg px-3 py-2 text-sm text-primary-100 hover:bg-dark-200"
+            >
+              Dashboard
+            </Link>
+
+            <form action={handleSignOut}>
+              <button
+                type="submit"
+                className="mt-1 block w-full rounded-lg px-3 py-2 text-left text-sm text-primary-100 hover:bg-dark-200"
+              >
+                Logout
+              </button>
+            </form>
+          </div>
+        </details>
       </nav>
 
       {children}
