@@ -21,6 +21,20 @@ interface SavedMessage {
   content: string;
 }
 
+const avatarColors = [
+  "#E53935", "#D81B60", "#8E24AA", "#5E35B1",
+  "#3949AB", "#1E88E5", "#039BE5", "#00ACC1",
+  "#00897B", "#43A047", "#7CB342", "#F4511E",
+];
+
+function getAvatarColor(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return avatarColors[Math.abs(hash) % avatarColors.length];
+}
+
 const Agent = ({
   userName,
   userId,
@@ -166,13 +180,12 @@ const Agent = ({
         {/* User Profile Card */}
         <div className="card-border">
           <div className="card-content">
-            <Image
-              src="/user-avatar.png"
-              alt="profile-image"
-              width={539}
-              height={539}
-              className="rounded-full object-cover size-[120px]"
-            />
+            <div
+              className="rounded-full size-[120px] flex items-center justify-center text-white text-5xl font-medium select-none"
+              style={{ backgroundColor: getAvatarColor(userName) }}
+            >
+              {userName?.charAt(0).toUpperCase()}
+            </div>
             <h3>{userName}</h3>
           </div>
         </div>
